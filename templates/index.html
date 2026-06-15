@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CropGuard AI - Plant Disease Detection</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .header h1 span { color: #52c41a; }
+    .header p {
+      color: #a0c4ff;
+      margin-top: 8px;
+      font-size: 1rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+    }
+    .upload-area {
+      border: 2px dashed rgba(82,196,26,0.5);
+      border-radius: 14px;
+      padding: 40px 20px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    .upload-area:hover {
+      border-color: #52c41a;
+      background: rgba(82,196,26,0.05);
+    }
+    .upload-icon { font-size: 3rem; margin-bottom: 12px; }
+    .upload-area p { color: #ccc; font-size: 0.95rem; }
+    .upload-area small { color: #666; font-size: 0.8rem; margin-top: 6px; display: block; }
+    input[type="file"] { display: none; }
+    #preview {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+      border: 2px solid rgba(82,196,26,0.3);
+    }
+    .btn {
+      background: linear-gradient(135deg, #52c41a, #237804);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .btn:hover:not(:disabled) { opacity: 0.9; }
+    .btn:disabled { background: #444; cursor: not-allowed; color: #888; }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+    }
+    .stat { text-align: center; }
+    .stat .num { font-size: 1.4rem; font-weight: 700; color: #52c41a; }
+    .stat .label { font-size: 0.75rem; color: #888; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🌿 Crop<span>Guard</span> AI</h1>
+    <p>AI-powered plant disease detection system</p>
+  </div>
+
+  <div class="card">
+    <form action="/predict" method="POST" enctype="multipart/form-data">
+      <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📷</div>
+        <p>Drop your leaf image here</p>
+        <p>or <strong style="color:#52c41a">click to browse</strong></p>
+        <small>JPG, PNG, WEBP · max 16MB</small>
+      </div>
+      <input type="file" id="fileInput" name="file" accept="image/*" onchange="previewImage(this)"/>
+      <img id="preview" src="" alt="Preview"/>
+      <button type="submit" class="btn" id="submitBtn" disabled>🔍 Analyze Image</button>
+    </form>
+
+    <div class="stats">
+      <div class="stat"><div class="num">65</div><div class="label">DISEASE CLASSES</div></div>
+      <div class="stat"><div class="num">58K</div><div class="label">TRAINING IMAGES</div></div>
+      <div class="stat"><div class="num">93%</div><div class="label">ACCURACY</div></div>
+    </div>
+  </div>
+
+  <script>
+    function previewImage(input) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const preview = document.getElementById('preview');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          document.getElementById('submitBtn').disabled = false;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+</body>
+</html>

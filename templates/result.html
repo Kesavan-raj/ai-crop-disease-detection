@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Result - CropGuard AI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 2rem; color: #fff; font-weight: 700; }
+    .header h1 span { color: #52c41a; }
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 540px;
+      width: 100%;
+    }
+    .uploaded-img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 2px solid rgba(82,196,26,0.3);
+      display: none;
+    }
+    .section-title {
+      color: #52c41a;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .info-label { color: #888; font-size: 0.85rem; }
+    .info-value { color: #fff; font-weight: 600; font-size: 0.9rem; text-align: right; max-width: 65%; }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .healthy { background: rgba(82,196,26,0.15); color: #52c41a; border: 1px solid #52c41a; }
+    .diseased { background: rgba(255,77,79,0.15); color: #ff4d4f; border: 1px solid #ff4d4f; }
+    .confidence-wrap { margin: 16px 0; }
+    .confidence-label {
+      display: flex;
+      justify-content: space-between;
+      color: #aaa;
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+    .confidence-bar {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .confidence-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #52c41a, #95de64);
+    }
+    .info-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 8px;
+    }
+    .info-box p { color: #ccc; font-size: 0.88rem; line-height: 1.6; }
+    .info-box .icon { font-size: 1.1rem; margin-right: 6px; }
+    .error-box {
+      background: rgba(255,77,79,0.1);
+      border: 1px solid rgba(255,77,79,0.3);
+      border-radius: 10px;
+      padding: 20px;
+      color: #ff4d4f;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .btn {
+      display: block;
+      background: linear-gradient(135deg, #52c41a, #237804);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 24px;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🌿 Crop<span>Guard</span> AI</h1>
+  </div>
+
+  <div class="card">
+    {% if error %}
+    <div class="error-box">❌ {{ error }}</div>
+    {% else %}
+
+    <div class="section-title">🔍 Detection Result</div>
+
+    <div class="info-row">
+      <span class="info-label">🌱 Plant</span>
+      <span class="info-value">{{ plant }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">🦠 Condition</span>
+      <span class="info-value">{{ condition }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">📋 Status</span>
+      <span class="info-value">
+        {% if 'healthy' in condition.lower() %}
+          <span class="status-badge healthy">✅ Healthy</span>
+        {% else %}
+          <span class="status-badge diseased">⚠️ Diseased</span>
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="confidence-wrap">
+      <div class="confidence-label">
+        <span>Confidence Score</span>
+        <span>{{ confidence }}%</span>
+      </div>
+      <div class="confidence-bar">
+        <div class="confidence-fill" style="width: {{ confidence }}%"></div>
+      </div>
+    </div>
+
+    <div class="section-title">💊 Treatment</div>
+    <div class="info-box">
+      <p><span class="icon">🩺</span>{{ treatment }}</p>
+    </div>
+
+    <div class="section-title">🌾 Fertilizer Recommendation</div>
+    <div class="info-box">
+      <p><span class="icon">🧪</span>{{ fertilizer }}</p>
+    </div>
+
+    {% endif %}
+    <a href="/" class="btn">⬅ Analyze Another Image</a>
+  </div>
+</body>
+</html>
