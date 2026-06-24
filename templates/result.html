@@ -5,174 +5,412 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Result - CropGuard AI</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background: #0a0a0a;
+      overflow-x: hidden;
+    }
+
+    .bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      background: radial-gradient(ellipse at 20% 20%, #0d3320 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 80%, #0a1628 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 50%, #0a0a0a 0%, #0a0a0a 100%);
+    }
+
+    .grid {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(34,197,94,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-radius: 10px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      font-size: 1.1rem;
     }
-    .header { text-align: center; margin-bottom: 24px; }
-    .header h1 { font-size: 2rem; color: #fff; font-weight: 700; }
-    .header h1 span { color: #52c41a; }
-    .card {
+
+    .logo span { color: #22c55e; }
+
+    .back-btn {
       background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.1);
+      color: #9ca3af;
+      padding: 8px 18px;
       border-radius: 20px;
-      padding: 32px;
-      max-width: 540px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1000px;
       width: 100%;
     }
-    .uploaded-img {
+
+    /* LEFT - image + basic info */
+    .left-col { display: flex; flex-direction: column; gap: 20px; }
+
+    .img-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .img-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34,197,94,0.4), transparent);
+    }
+
+    .img-card img {
       width: 100%;
-      max-height: 200px;
+      height: 220px;
       object-fit: cover;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      border: 2px solid rgba(82,196,26,0.3);
-      display: none;
+      display: block;
     }
-    .section-title {
-      color: #52c41a;
-      font-size: 0.8rem;
+
+    .img-card-footer {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .img-card-footer span { color: #6b7280; font-size: 0.8rem; }
+
+    .status-pill {
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
       font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .healthy { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+    .diseased { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+    .info-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34,197,94,0.4), transparent);
+    }
+
+    .info-card-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #22c55e;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      margin-bottom: 12px;
-      margin-top: 20px;
+      margin-bottom: 16px;
     }
+
     .info-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .info-label { color: #888; font-size: 0.85rem; }
-    .info-value { color: #fff; font-weight: 600; font-size: 0.9rem; text-align: right; max-width: 65%; }
-    .status-badge {
-      display: inline-block;
-      padding: 3px 12px;
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #6b7280; font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
+    .info-value { color: #f9fafb; font-weight: 600; font-size: 0.88rem; text-align: right; max-width: 55%; }
+
+    /* RIGHT col */
+    .right-col { display: flex; flex-direction: column; gap: 20px; }
+
+    .confidence-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
     }
-    .healthy { background: rgba(82,196,26,0.15); color: #52c41a; border: 1px solid #52c41a; }
-    .diseased { background: rgba(255,77,79,0.15); color: #ff4d4f; border: 1px solid #ff4d4f; }
-    .confidence-wrap { margin: 16px 0; }
-    .confidence-label {
+
+    .confidence-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34,197,94,0.4), transparent);
+    }
+
+    .conf-header {
       display: flex;
       justify-content: space-between;
-      color: #aaa;
-      font-size: 0.82rem;
-      margin-bottom: 6px;
+      align-items: center;
+      margin-bottom: 12px;
     }
-    .confidence-bar {
-      background: rgba(255,255,255,0.1);
+
+    .conf-title { color: #6b7280; font-size: 0.82rem; font-weight: 500; }
+    .conf-value { font-size: 2rem; font-weight: 800; color: #22c55e; }
+    .conf-value span { font-size: 1rem; color: #4b5563; }
+
+    .conf-bar {
+      background: rgba(255,255,255,0.06);
       border-radius: 20px;
       height: 8px;
       overflow: hidden;
     }
-    .confidence-fill {
+    .conf-fill {
       height: 100%;
       border-radius: 20px;
-      background: linear-gradient(90deg, #52c41a, #95de64);
+      background: linear-gradient(90deg, #22c55e, #86efac);
+      transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
     }
-    .info-box {
-      background: rgba(255,255,255,0.04);
+
+    .rec-card {
+      background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .rec-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34,197,94,0.4), transparent);
+    }
+
+    .rec-section { margin-bottom: 20px; }
+    .rec-section:last-child { margin-bottom: 0; }
+
+    .rec-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #22c55e;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rec-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
       padding: 14px 16px;
-      margin-top: 8px;
     }
-    .info-box p { color: #ccc; font-size: 0.88rem; line-height: 1.6; }
-    .info-box .icon { font-size: 1.1rem; margin-right: 6px; }
-    .error-box {
-      background: rgba(255,77,79,0.1);
-      border: 1px solid rgba(255,77,79,0.3);
-      border-radius: 10px;
-      padding: 20px;
-      color: #ff4d4f;
+
+    .rec-box p {
+      color: #d1d5db;
+      font-size: 0.86rem;
+      line-height: 1.7;
+    }
+
+    .error-card {
+      background: rgba(239,68,68,0.05);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 20px;
+      padding: 32px;
       text-align: center;
-      margin-bottom: 20px;
+      color: #ef4444;
+      grid-column: 1 / -1;
     }
-    .btn {
+
+    .error-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .error-card p { color: #6b7280; font-size: 0.9rem; }
+
+    .analyze-btn {
       display: block;
-      background: linear-gradient(135deg, #52c41a, #237804);
-      color: white;
-      border: none;
-      padding: 13px;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
       width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
       text-align: center;
       text-decoration: none;
-      margin-top: 24px;
-      transition: opacity 0.2s;
+      transition: all 0.3s;
+      margin-top: auto;
     }
-    .btn:hover { opacity: 0.9; }
+    .analyze-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(34,197,94,0.3); }
+
+    @media(max-width:768px){
+      nav { padding: 16px 20px; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>🌿 Crop<span>Guard</span> AI</h1>
-  </div>
+  <div class="bg"></div>
+  <div class="grid"></div>
 
-  <div class="card">
-    {% if error %}
-    <div class="error-box">❌ {{ error }}</div>
-    {% else %}
+  <div class="wrapper">
+    <nav>
+      <div class="logo">
+        <div class="logo-icon">🌿</div>
+        Crop<span>Guard</span> AI
+      </div>
+      <a href="/" class="back-btn">⬅ New Analysis</a>
+    </nav>
 
-    <div class="section-title">🔍 Detection Result</div>
+    <div class="main">
+      <div class="result-grid">
 
-    <div class="info-row">
-      <span class="info-label">🌱 Plant</span>
-      <span class="info-value">{{ plant }}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">🦠 Condition</span>
-      <span class="info-value">{{ condition }}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">📋 Status</span>
-      <span class="info-value">
-        {% if 'healthy' in condition.lower() %}
-          <span class="status-badge healthy">✅ Healthy</span>
+        {% if error %}
+        <div class="error-card">
+          <h3>❌ Detection Failed</h3>
+          <p>{{ error }}</p>
+          <a href="/" class="analyze-btn" style="margin-top:20px;">Try Again</a>
+        </div>
+
         {% else %}
-          <span class="status-badge diseased">⚠️ Diseased</span>
+
+        <!-- LEFT -->
+        <div class="left-col">
+          <div class="img-card">
+            <div style="width:100%;height:220px;background:rgba(34,197,94,0.05);display:flex;align-items:center;justify-content:center;font-size:4rem;">🌿</div>
+            <div class="img-card-footer">
+              <span>Analyzed Image</span>
+              {% if 'healthy' in condition.lower() %}
+                <span class="status-pill healthy">✅ Healthy</span>
+              {% else %}
+                <span class="status-pill diseased">⚠️ Diseased</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-title">🔍 Detection Result</div>
+            <div class="info-row">
+              <span class="info-label">🌱 Plant</span>
+              <span class="info-value">{{ plant }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">🦠 Condition</span>
+              <span class="info-value">{{ condition }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">🤖 Model</span>
+              <span class="info-value">MobileNetV2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right-col">
+          <div class="confidence-card">
+            <div class="conf-header">
+              <span class="conf-title">Confidence Score</span>
+              <div class="conf-value">{{ confidence }}<span>%</span></div>
+            </div>
+            <div class="conf-bar">
+              <div class="conf-fill" id="confFill" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="rec-card">
+            <div class="rec-section">
+              <div class="rec-label">💊 Treatment</div>
+              <div class="rec-box">
+                <p>{{ treatment }}</p>
+              </div>
+            </div>
+            <div class="rec-section">
+              <div class="rec-label">🌾 Fertilizer Recommendation</div>
+              <div class="rec-box">
+                <p>{{ fertilizer }}</p>
+              </div>
+            </div>
+          </div>
+
+          <a href="/" class="analyze-btn">🔍 Analyze Another Image</a>
+        </div>
+
         {% endif %}
-      </span>
-    </div>
-
-    <div class="confidence-wrap">
-      <div class="confidence-label">
-        <span>Confidence Score</span>
-        <span>{{ confidence }}%</span>
-      </div>
-      <div class="confidence-bar">
-        <div class="confidence-fill" style="width: {{ confidence }}%"></div>
       </div>
     </div>
-
-    <div class="section-title">💊 Treatment</div>
-    <div class="info-box">
-      <p><span class="icon">🩺</span>{{ treatment }}</p>
-    </div>
-
-    <div class="section-title">🌾 Fertilizer Recommendation</div>
-    <div class="info-box">
-      <p><span class="icon">🧪</span>{{ fertilizer }}</p>
-    </div>
-
-    {% endif %}
-    <a href="/" class="btn">⬅ Analyze Another Image</a>
   </div>
+
+  <script>
+    window.addEventListener('load', () => {
+      const fill = document.getElementById('confFill');
+      if (fill) {
+        setTimeout(() => {
+          fill.style.width = '{{ confidence }}%';
+        }, 300);
+      }
+    });
+  </script>
 </body>
 </html>
